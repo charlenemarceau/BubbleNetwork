@@ -30,11 +30,10 @@ const userSchema = new mongoose.Schema(
         dateOfBirth: {
             type: Date,
             required: true,
-            trim: true,
         },
         avatar: {
             type: String,
-            default: "./uploads/profil/random-user.png"
+            default: "./uploads/profil/random-user.jpg"
         },
         bio: {
             type: String,

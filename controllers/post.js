@@ -1,6 +1,11 @@
 const PostModel = require('../collections/Post');
+const postModel = require("../collections/Post");
 const UserModel = require('../collections/User');
 const ObjectID = require('mongoose').Types.ObjectId;
+const fs = require("fs");
+const { promisify } = require("util");
+const pipeline = promisify(require("stream").pipeline);
+const {uploadErrors} = require('../utils/errors');
 
 module.exports.readPost = (req, res) => {
     PostModel.find((err, docs) => {
@@ -14,20 +19,47 @@ module.exports.readPost = (req, res) => {
 
 
 module.exports.createPost = async (req, res) => {
-    const newPost = new PostModel({
-        userId: req.body.userId,
-        message: req.body.message,
-        comments: [],
-    });
-
-    try {
-        const post = await newPost.save();
-        return res.status(201).send(post);
-    } catch (err) {
-        return res.status(400).send(err);
+    let fileName;
+  
+    if (req.file !== null) {
+      try {
+        if (
+          req.file.detectedMimeType != "image/jpg" &&
+          req.file.detectedMimeType != "image/png" &&
+          req.file.detectedMimeType != "image/jpeg"
+        )
+          throw Error("invalid file");
+  
+        if (req.file.size > 500000) throw Error("max size");
+      } catch (err) {
+        const errors = uploadErrors(err);
+        return res.status(201).json({ errors });
+      }
+      fileName = req.body.userId + Date.now() + ".jpg";
+  
+      await pipeline(
+        req.file.stream,
+        fs.createWriteStream(
+          `${__dirname}/../client/public/uploads/posts/${fileName}`
+        )
+      );
     }
-
-}
+  
+    const newPost = new postModel({
+      userId: req.body.userId,
+      message: req.body.message,
+      picture: req.file !== null ? "./uploads/posts/" + fileName : "",
+      video: req.body.video,
+      comments: [],
+    });
+  
+    try {
+      const post = await newPost.save();
+      return res.status(201).json(post);
+    } catch (err) {
+      return res.status(400).send(err);
+    }
+  };
 
 
 module.exports.updatePost = (req, res) => {

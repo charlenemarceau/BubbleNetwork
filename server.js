@@ -9,7 +9,7 @@ const app = express();
 const { checkUser, requireAuth } = require('./middleware/auth.middleware');
 
 // app.use((req, res, next) => {
-//     // console.log('allow origin ', req.headers.origin)
+//     console.log('allow origin ', req.headers.origin)
 //     res.header("Access-Control-Allow-Headers", "true")
 //     res.header("Access-Control-Allow-Origin", req.headers.origin);
 //     next();
@@ -52,7 +52,7 @@ app.get('/jwtid', requireAuth, (req, res) => {
 // routes
 app.use('/api/user', userRoutes);
 app.use('/api/post', postRoutes);
-app.use('/api/upload', userRoutes);
+// app.use('/api/upload', userRoutes);
 
 
 // server 

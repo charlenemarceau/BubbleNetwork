@@ -8,12 +8,14 @@ const postSchema = new mongoose.Schema({
     message: {
         type: String,
         trim: true,
-        required: true,
         max: 300,
     },
     picture: {
         type: String,
     },
+    video: {
+        type: String,
+      },
     comments: {
         type: [{
             commenterId: String,
